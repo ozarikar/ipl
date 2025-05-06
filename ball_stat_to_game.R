@@ -75,19 +75,19 @@ for (game in game_names) {
             length(ATeamScore) > 0 && length(BTeamScore) > 0) {
             games_stat <- rbind(games_stat, data.frame(
                 MatchID = as.numeric(game),
-                ATeamName = ATeamName,
-                BTeamName = ifelse(is.na(BTeamName), "", BTeamName),
-                ATeamScore = ifelse(is.na(ATeamScore), 0, ATeamScore),
-                BTeamScore = ifelse(is.na(BTeamScore), 0, BTeamScore),
-                ATeamFours = ifelse(is.na(ATeamFours), 0, ATeamFours),
-                BTeamFours = ifelse(is.na(BTeamFours), 0, BTeamFours),
-                ATeamSixes = ifelse(is.na(ATeamSixes), 0, ATeamSixes),
-                BTeamSixes = ifelse(is.na(BTeamSixes), 0, BTeamSixes),
-                ATeamPowerPlay = ifelse(is.na(ATeamPowerPlay), 0, ATeamPowerPlay),
-                BTeamPowerPlay = ifelse(is.na(BTeamPowerPlay), 0, BTeamPowerPlay),
-                total_runs = ifelse(is.na(total_runs), 0, total_runs),
-                A_fifties = ifelse(is.na(A_fifties), 0, A_fifties),
-                B_fifties = ifelse(is.na(B_fifties), 0, B_fifties)))
+                ATeamName = ifelse(length(ATeamName) == 0, NA, ATeamName),
+                BTeamName = ifelse(length(BTeamName) == 0, NA, BTeamName),
+                ATeamScore = ifelse(length(ATeamScore) == 0 || is.na(ATeamScore), 0, ATeamScore),
+                BTeamScore = ifelse(length(BTeamScore) == 0 || is.na(BTeamScore), 0, BTeamScore),
+                ATeamFours = ifelse(length(ATeamFours) == 0 || is.na(ATeamFours), 0, ATeamFours),
+                BTeamFours = ifelse(length(BTeamFours) == 0 || is.na(BTeamFours), 0, BTeamFours),
+                ATeamSixes = ifelse(length(ATeamSixes) == 0 || is.na(ATeamSixes), 0, ATeamSixes),
+                BTeamSixes = ifelse(length(BTeamSixes) == 0 || is.na(BTeamSixes), 0, BTeamSixes),
+                ATeamPowerPlay = ifelse(length(ATeamPowerPlay) == 0 || is.na(ATeamPowerPlay), 0, ATeamPowerPlay),
+                BTeamPowerPlay = ifelse(length(BTeamPowerPlay) == 0 || all(is.na(BTeamPowerPlay)), 0, sum(BTeamPowerPlay, na.rm = TRUE)),
+                total_runs = ifelse(length(total_runs) == 0 || is.na(total_runs), 0, total_runs),
+                A_fifties = ifelse(length(A_fifties) == 0 || is.na(A_fifties), 0, A_fifties),
+                B_fifties = ifelse(length(B_fifties) == 0 || is.na(B_fifties), 0, B_fifties)))
         } else {
             print(paste("Skipping game", game, "due to missing or invalid data"))
         }
@@ -95,5 +95,5 @@ for (game in game_names) {
 }
 
 View(games_stat)
-
+write.csv(games_stat, "games_stat.csv", row.names = FALSE)
 # nolint end
