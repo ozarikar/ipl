@@ -116,6 +116,7 @@ def get_all_data(last_x_seasons):
     return matches_data
 
 def main():
+    """
     all_data = get_all_data(1)
     if not all_data:
         print("No data collected.")
@@ -144,6 +145,15 @@ def main():
 
     print("Data saved to ipl_data.csv")
     driver.quit()  # Close the driver after all operations
+    """
+    match_data = get_match_data('1822', '2025')
+    file_path1 = 'match1822_data.csv' 
+    with open(file_path1,"w") as file:
+        fieldnames = set().union(*[d.keys() for d in match_data])  # Get all unique keys
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(match_data)
+         
 
 if __name__ == "__main__":
     main()
