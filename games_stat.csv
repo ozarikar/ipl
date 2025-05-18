@@ -1,27 +1,27 @@
-"MatchID","ATeamName","BTeamName","ATeamScore","BTeamScore","ATeamFours","BTeamFours","ATeamSixes","BTeamSixes","ATeamPowerPlay","BTeamPowerPlay","total_runs","A_fifties","B_fifties"
-1822,"Delhi Capitals","Royal Challengers Bengaluru",31,163,4,11,0,10,0,64,194,0,0
-1822,"Delhi Capitals","Royal Challengers Bengaluru",31,163,4,11,0,10,0,64,194,0,0
-1821,"Rajasthan Royals","Gujarat Titans",159,217,11,20,8,9,57,56,376,0,0
-1822,"Delhi Capitals","Royal Challengers Bengaluru",31,163,4,11,0,10,0,64,194,0,0
-1821,"Rajasthan Royals","Gujarat Titans",159,217,11,20,8,9,57,56,376,0,0
-1820,"Chennai Super Kings","Punjab Kings",195,219,16,11,8,16,59,144,414,0,0
-1817,"Kolkata Knight Riders","Lucknow Super Giants",234,238,28,18,10,15,90,59,472,0,0
-1819,"Mumbai Indians","Royal Challengers Bengaluru",209,221,21,18,12,13,54,73,430,0,0
-1816,"Punjab Kings","Rajasthan Royals",155,205,13,18,4,10,43,53,360,0,0
-1815,"Chennai Super Kings","Delhi Capitals",158,182,11,15,3,7,46,51,340,0,0
-1814,"Mumbai Indians","Lucknow Super Giants",190,203,20,21,5,8,64,69,393,0,0
-1813,"Sunrisers Hyderabad","Kolkata Knight Riders",120,200,9,18,5,11,33,53,320,0,0
-1812,"Gujarat Titans","Royal Challengers Bengaluru",170,169,14,15,11,9,42,38,339,0,0
-1811,"Punjab Kings","Lucknow Super Giants",177,171,16,15,11,8,62,39,348,0,0
-1810,"Mumbai Indians","Kolkata Knight Riders",121,116,7,9,9,6,55,41,237,0,0
-1809,"Chennai Super Kings","Rajasthan Royals",176,182,14,15,8,9,42,79,358,0,0
-1808,"Delhi Capitals","Sunrisers Hyderabad",166,163,15,13,8,8,52,58,329,0,0
-1807,"Mumbai Indians","Gujarat Titans",160,196,12,14,7,9,48,128,356,0,0
-1806,"Chennai Super Kings","Royal Challengers Bengaluru",146,196,15,15,4,12,30,111,342,0,0
-1805,"Lucknow Super Giants","Sunrisers Hyderabad",193,190,19,10,11,12,77,62,383,0,0
-1804,"Kolkata Knight Riders","Rajasthan Royals",152,151,12,11,7,7,40,54,303,0,0
-1803,"Gujarat Titans","Punjab Kings",232,243,15,23,16,16,61,73,475,0,0
-1802,"Delhi Capitals","Lucknow Super Giants",211,209,20,15,13,16,58,64,420,0,0
-1801,"Chennai Super Kings","Mumbai Indians",158,155,9,14,8,5,62,104,313,0,0
-1800,"Rajasthan Royals","Sunrisers Hyderabad",242,286,18,35,18,12,77,184,528,0,0
-1799,"Royal Challengers Bengaluru","Kolkata Knight Riders",177,174,21,18,7,8,80,60,351,0,0
+MatchID,ATeamName,BTeamName,ATeamScore,BTeamScore,ATeamFours,BTeamFours,ATeamSixes,BTeamSixes,ATeamPowerPlay,BTeamPowerPlay,total_runs,A_fifties,B_fifties
+1822,Delhi Capitals,Royal Challengers Bengaluru,31,163,4,11,0,10,0,64,194,0,0
+1822,Delhi Capitals,Royal Challengers Bengaluru,31,163,4,11,0,10,0,64,194,0,0
+1821,Rajasthan Royals,Gujarat Titans,159,217,11,20,8,9,57,56,376,0,0
+1822,Delhi Capitals,Royal Challengers Bengaluru,31,163,4,11,0,10,0,64,194,0,0
+1821,Rajasthan Royals,Gujarat Titans,159,217,11,20,8,9,57,56,376,0,0
+1820,Chennai Super Kings,Punjab Kings,195,219,16,11,8,16,59,144,414,0,0
+1817,Kolkata Knight Riders,Lucknow Super Giants,234,238,28,18,10,15,90,59,472,0,0
+1819,Mumbai Indians,Royal Challengers Bengaluru,209,221,21,18,12,13,54,73,430,0,0
+1816,Punjab Kings,Rajasthan Royals,155,205,13,18,4,10,43,53,360,0,0
+1815,Chennai Super Kings,Delhi Capitals,158,182,11,15,3,7,46,51,340,0,0
+1814,Mumbai Indians,Lucknow Super Giants,190,203,20,21,5,8,64,69,393,0,0
+1813,Sunrisers Hyderabad,Kolkata Knight Riders,120,200,9,18,5,11,33,53,320,0,0
+1812,Gujarat Titans,Royal Challengers Bengaluru,170,169,14,15,11,9,42,38,339,0,0
+1811,Punjab Kings,Lucknow Super Giants,177,171,16,15,11,8,62,39,348,0,0
+1810,Mumbai Indians,Kolkata Knight Riders,121,116,7,9,9,6,55,41,237,0,0
+1809,Chennai Super Kings,Rajasthan Royals,176,182,14,15,8,9,42,79,358,0,0
+1808,Delhi Capitals,Sunrisers Hyderabad,166,163,15,13,8,8,52,58,329,0,0
+1807,Mumbai Indians,Gujarat Titans,160,196,12,14,7,9,48,128,356,0,0
+1806,Chennai Super Kings,Royal Challengers Bengaluru,146,196,15,15,4,12,30,111,342,0,0
+1805,Lucknow Super Giants,Sunrisers Hyderabad,193,190,19,10,11,12,77,62,383,0,0
+1804,Kolkata Knight Riders,Rajasthan Royals,152,151,12,11,7,7,40,54,303,0,0
+1803,Gujarat Titans,Punjab Kings,232,243,15,23,16,16,61,73,475,0,0
+1802,Delhi Capitals,Lucknow Super Giants,211,209,20,15,13,16,58,64,420,0,0
+1801,Chennai Super Kings,Mumbai Indians,158,155,9,14,8,5,62,104,313,0,0
+1800,Rajasthan Royals,Sunrisers Hyderabad,242,286,18,35,18,12,77,184,528,0,0
+1799,Royal Challengers Bengaluru,Kolkata Knight Riders,177,174,21,18,7,8,80,60,351,0,0

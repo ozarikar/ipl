@@ -10,6 +10,7 @@ import requests
 import json
 import time
 import os
+import sys
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
@@ -33,7 +34,7 @@ def find_target_api_url(url, key_indicator, number_of_requests):
                 driver.refresh()
             WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             WebDriverWait(driver, 20).until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-            time.sleep(5)
+            time.sleep(15)
             logs = driver.get_log("performance")
             urls = []
             for entry in logs:
@@ -105,23 +106,26 @@ def get_match_data(match_code, season):
                 print(f"No 'Innings1' or 'Innings2' found for match {match_code} in season {season}")
     return match_data
 
-def get_all_data(last_x_seasons):
-    url = 'https://www.iplt20.com/matches/results/'
-    seasons = find_all_seasons_codes(url)
+def get_all_data(season):
+  #  url = 'https://www.iplt20.com/matches/results/'
+  #  seasons = find_all_seasons_codes(url)
     matches_data = []
-    for season in seasons[0:last_x_seasons]:
-        matches = get_match_codes(season)
-        for match in matches:
-            matches_data.extend(get_match_data(match, season))
+#
+    matches = get_match_codes(season)
+    for match in matches:
+        matches_data.extend(get_match_data(match, season))
     return matches_data
 
 def main():
-    """
-    all_data = get_all_data(1)
+    if len(sys.argv) != 2:
+        print("Usage: python ipl_scraper.py <season>")
+        return
+    season = sys.argv[1]
+    all_data = get_all_data(season)
     if not all_data:
         print("No data collected.")
         return
-    file_path = 'ipl_data.csv'
+    file_path = f'ipl_data_{season}.csv'
     existing_data = []
 
     # Check if the file exists and read existing data
@@ -145,14 +149,7 @@ def main():
 
     print("Data saved to ipl_data.csv")
     driver.quit()  # Close the driver after all operations
-    """
-    match_data = get_match_data('1822', '2025')
-    file_path1 = 'match1822_data.csv' 
-    with open(file_path1,"w") as file:
-        fieldnames = set().union(*[d.keys() for d in match_data])  # Get all unique keys
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(match_data)
+
          
 
 if __name__ == "__main__":
