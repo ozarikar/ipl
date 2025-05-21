@@ -3,8 +3,15 @@ library(dplyr)
 library(tidyr)
 library(magrittr) # Ensure the pipe operator is available
 
-ipl_data <- read.csv("ipl_data.csv")
+ipl_data_2023 <- read.csv("Desktop/ipl/ipl_data_2023.csv")
+ipl_data_2024 <- read.csv("Desktop/ipl/ipl_data_2024.csv")
+ipl_data_2025 <- read.csv("Desktop/ipl/ipl_data_2025.csv")
+
+# Combine the data frames
+ipl_data <- bind_rows(ipl_data_2023, ipl_data_2024, ipl_data_2025)
+write.csv(ipl_data, "ipl_data_combined.csv", row.names = FALSE)
 # Remove rows with NA in specific columns
+
 required_columns <- c("MatchID", "TeamName")
 ipl_data <- ipl_data %>% filter(!if_any(all_of(required_columns), is.na))
 
@@ -12,6 +19,7 @@ game_names <- unique(ipl_data$MatchID,na.rm = TRUE)
 
 
 
+View(ipl_data)
 games_stat <- data.frame(
     MatchID = numeric(),
     ATeamName = character(),
@@ -22,8 +30,7 @@ games_stat <- data.frame(
     BTeamFours = numeric(),
     ATeamSixes = numeric(),
     BTeamSixes = numeric(),
-    ATeamPowerPlay = numeric(),
-    BTeamPowerPlay = numeric(),
+    PowerPlay = numeric(),
     total_runs = numeric(),
     A_fifties = numeric(),
     B_fifties = numeric()
@@ -42,9 +49,9 @@ for (game in game_names) {
             next
         }
         ATeamName <- team_names[1]
-        print(paste0("ATeamName", ATeamName))
+        print(paste0("ATeamName:  ", ATeamName))
         BTeamName <- team_names[2]
-        print(paste0("BTeamName", BTeamName))
+        print(paste0("BTeamName:  ", BTeamName))
 
 
        # Extracting scores
@@ -83,8 +90,8 @@ for (game in game_names) {
                 BTeamFours = ifelse(length(BTeamFours) == 0 || is.na(BTeamFours), 0, BTeamFours),
                 ATeamSixes = ifelse(length(ATeamSixes) == 0 || is.na(ATeamSixes), 0, ATeamSixes),
                 BTeamSixes = ifelse(length(BTeamSixes) == 0 || is.na(BTeamSixes), 0, BTeamSixes),
-                ATeamPowerPlay = ifelse(length(ATeamPowerPlay) == 0 || is.na(ATeamPowerPlay), 0, ATeamPowerPlay),
-                BTeamPowerPlay = ifelse(length(BTeamPowerPlay) == 0 || all(is.na(BTeamPowerPlay)), 0, sum(BTeamPowerPlay, na.rm = TRUE)),
+                PowerPlay = (ifelse(length(ATeamPowerPlay) == 0 || all(is.na(ATeamPowerPlay)), 0, sum(ATeamPowerPlay, na.rm = TRUE)))-
+                 ifelse(length(BTeamPowerPlay) == 0 || all(is.na(BTeamPowerPlay)), 0, sum(BTeamPowerPlay, na.rm = TRUE)),
                 total_runs = ifelse(length(total_runs) == 0 || is.na(total_runs), 0, total_runs),
                 A_fifties = ifelse(length(A_fifties) == 0 || is.na(A_fifties), 0, A_fifties),
                 B_fifties = ifelse(length(B_fifties) == 0 || is.na(B_fifties), 0, B_fifties)))
@@ -95,5 +102,5 @@ for (game in game_names) {
 }
 
 View(games_stat)
-write.csv(games_stat, "games_stat.csv", row.names = FALSE)
+write.csv(games_stat, "games_stat_2023.csv", row.names = FALSE)
 # nolint end

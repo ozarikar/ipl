@@ -13,6 +13,10 @@ import os
 import sys
 
 chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
+chrome_options.add_argument("--headless")  # Add this line
+chrome_options.add_argument("--no-sandbox")  # Add for some Linux servers
+chrome_options.add_argument("--disable-dev-shm-usage")  # Add for some Linux servers
 chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
@@ -34,7 +38,7 @@ def find_target_api_url(url, key_indicator, number_of_requests):
                 driver.refresh()
             WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             WebDriverWait(driver, 20).until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-            time.sleep(15)
+            time.sleep(30)
             logs = driver.get_log("performance")
             urls = []
             for entry in logs:
@@ -44,6 +48,8 @@ def find_target_api_url(url, key_indicator, number_of_requests):
                     urls.append(log["params"]["request"]["url"])
                     if len(urls) == number_of_requests:
                         break
+            # Inside your for entry in logs loop:
+            print(log["params"]["request"]["url"],'\n')
             if urls:
                 print(f"Success: Found {len(urls)} URLs containing '{key_indicator}' for {url}")
                 break

@@ -1,0 +1,194 @@
+import pandas as pd
+import numpy as np
+
+# Load the dataset
+try:
+    df = pd.read_csv('ipl_data_combined.csv', low_memory=False)
+except FileNotFoundError:
+    print("Error: 'sample_ipl_data.csv' not found. Make sure the file is in the same directory.")
+    exit()
+
+# --- 1. Data Cleaning and Basic Preparation ---
+df.columns = df.columns.str.replace('"', '').str.strip()
+numeric_cols = [
+    'IsExtra', 'Extras', 'RunRuns', 'IsDotball', 'MatchID',
+    'IsWicket', 'InningsNo', 'ActualRuns', 'IsFour', 'IsSix', 'OverNo'
+]
+for col in numeric_cols:
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    else:
+        print(f"Warning: Essential column '{col}' not found in CSV. Results may be incorrect.")
+        if col not in df.columns: df[col] = 0
+
+
+cols_to_fill_na = ['ActualRuns', 'IsWicket', 'IsFour', 'IsSix', 'IsDotball', 'Extras', 'RunRuns']
+for col in cols_to_fill_na:
+    if col in df.columns:
+        df[col] = df[col].fillna(0)
+
+df['OverInteger'] = df['OverNo'].fillna(0).astype(float).astype(int)
+
+# --- 2. Define Game Phases ---
+# Note: Middle Overs (6-14) are still defined in data for other potential calculations if needed,
+# but we won't explicitly calculate runs for them in the summary for margins.
+# We need to ensure that runs from middle overs are included in overall score for winner determination.
+df['Phase_Runs'] = 'Other_Runs' # Default for runs calculation
+df.loc[df['OverInteger'] < 6, 'Phase_Runs'] = 'Powerplay_Runs'
+df.loc[(df['OverInteger'] >= 15) & (df['OverInteger'] < 20), 'Phase_Runs'] = 'DeathOvers_Runs'
+# For overall score, we need all runs. We'll sum them directly from ActualRuns for the innings.
+
+# --- 3. Function to Calculate Per-Innings Stats (Focused) ---
+def get_innings_summary(innings_df):
+    if innings_df.empty:
+        empty_stats = {'TeamName': 'N/A'}
+        # Runs for specific phases
+        empty_stats['Batting_Runs_Powerplay_Runs'] = 0 # Using the Phase_Runs column name
+        empty_stats['Batting_Runs_DeathOvers_Runs'] = 0
+        
+        metrics_overall_bat = ['WicketsLost', 'Fours', 'Sixes', 'DotBalls']
+        for metric in metrics_overall_bat:
+             empty_stats[f'Batting_{metric}_Overall'] = 0
+        
+        empty_stats['Bowling_ExtrasConceded_Overall'] = 0
+        empty_stats['Bowling_BowlersUsed_Overall'] = 0
+        empty_stats['Batting_Runs_TotalInnings'] = 0 # For winner determination
+        return empty_stats
+
+    summary = {}
+    summary['TeamName'] = innings_df['TeamName'].iloc[0] if 'TeamName' in innings_df.columns and not innings_df['TeamName'].dropna().empty else 'N/A'
+
+    # Batting Runs for Powerplay and DeathOvers using 'Phase_Runs'
+    for phase_name, phase_df in innings_df.groupby('Phase_Runs'):
+        if phase_name == 'Powerplay_Runs':
+            summary['Batting_Runs_Powerplay_Runs'] = phase_df['ActualRuns'].sum()
+        elif phase_name == 'DeathOvers_Runs':
+            summary['Batting_Runs_DeathOvers_Runs'] = phase_df['ActualRuns'].sum()
+
+    # Total runs for the innings (for winner determination)
+    summary['Batting_Runs_TotalInnings'] = innings_df['ActualRuns'].sum()
+
+    # Overall Batting Stats FOR WICKETS LOST, FOURS, SIXES, DOTBALLS
+    summary['Batting_WicketsLost_Overall'] = innings_df['IsWicket'].sum()
+    summary['Batting_Fours_Overall'] = innings_df['IsFour'].sum()
+    summary['Batting_Sixes_Overall'] = innings_df['IsSix'].sum()
+    summary['Batting_DotBalls_Overall'] = innings_df['IsDotball'].sum()
+    
+    # Bowling Stats
+    summary['Bowling_ExtrasConceded_Overall'] = innings_df['Extras'].sum()
+    summary['Bowling_BowlersUsed_Overall'] = innings_df['BowlerName'].nunique() if 'BowlerName' in innings_df.columns else 0
+    
+    # Ensure all expected keys exist
+    if 'Batting_Runs_Powerplay_Runs' not in summary: summary['Batting_Runs_Powerplay_Runs'] = 0
+    if 'Batting_Runs_DeathOvers_Runs' not in summary: summary['Batting_Runs_DeathOvers_Runs'] = 0
+    if 'Batting_Runs_TotalInnings' not in summary: summary['Batting_Runs_TotalInnings'] = 0
+    
+    metrics_bat_overall_keys = ['WicketsLost', 'Fours', 'Sixes', 'DotBalls']
+    for m in metrics_bat_overall_keys:
+        key = f'Batting_{m}_Overall'
+        if key not in summary: summary[key] = 0
+
+    if 'Bowling_ExtrasConceded_Overall' not in summary: summary['Bowling_ExtrasConceded_Overall'] = 0
+    if 'Bowling_BowlersUsed_Overall' not in summary: summary['Bowling_BowlersUsed_Overall'] = 0
+    
+    return summary
+
+# --- 4. Process Each Match and Create Comparative Features ---
+all_comparative_features = []
+
+if 'MatchID' not in df.columns or 'InningsNo' not in df.columns:
+    print("Error: 'MatchID' or 'InningsNo' column is missing.")
+    exit()
+
+for match_id, group in df.groupby('MatchID'):
+    match_features = {} 
+
+    in1_df = group[group['InningsNo'] == 1]
+    in2_df = group[group['InningsNo'] == 2]
+
+    stats_in1 = get_innings_summary(in1_df) 
+    stats_in2 = get_innings_summary(in2_df) 
+
+    # --- Determine Winner (for Team1_Won target variable) ---
+    team1_name_for_winner = stats_in1['TeamName']
+    team1_total_runs_for_winner = stats_in1.get('Batting_Runs_TotalInnings', 0)
+    team2_total_runs_for_winner = stats_in2.get('Batting_Runs_TotalInnings', 0)
+    
+    winner_name = 'N/A'
+    if team1_total_runs_for_winner > team2_total_runs_for_winner: winner_name = team1_name_for_winner
+    elif team2_total_runs_for_winner > team1_total_runs_for_winner: winner_name = stats_in2['TeamName']
+    else: winner_name = 'Tie'
+
+    match_features['Team1_Won'] = 0
+    if pd.notna(team1_name_for_winner) and team1_name_for_winner != 'N/A' and winner_name == team1_name_for_winner:
+        match_features['Team1_Won'] = 1
+    
+    # --- Calculate Comparative (Margin) Features: (Team1 - Team2) ---
+    
+    # Runs Margins for Powerplay and DeathOvers
+    phases_for_runs_margins = ['Powerplay_Runs', 'DeathOvers_Runs'] # Match Phase_Runs column names
+    for phase_key in phases_for_runs_margins:
+        # Extract the simple phase name for the output column
+        simple_phase_name = phase_key.replace('_Runs', '') 
+        t1_stat = stats_in1.get(f'Batting_Runs_{phase_key}', 0)
+        t2_stat = stats_in2.get(f'Batting_Runs_{phase_key}', 0)
+        match_features[f'Runs_Margin_{simple_phase_name}'] = t1_stat - t2_stat
+
+    # WicketsTaken, Fours, Sixes, DotBalls Margins OVERALL
+    for metric in ['WicketsLost', 'Fours', 'Sixes', 'DotBalls']:
+        t1_stat = stats_in1.get(f'Batting_{metric}_Overall', 0)
+        t2_stat = stats_in2.get(f'Batting_{metric}_Overall', 0)
+        
+        if metric == 'WicketsLost': 
+            match_features['WicketsTaken_Margin_Overall'] = t2_stat - t1_stat 
+        else:
+            match_features[f'{metric}_Margin_Overall'] = t1_stat - t2_stat
+    
+    # ExtrasConceded, BowlersUsed Margins OVERALL
+    extras_conceded_T1_bowlers = stats_in2.get('Bowling_ExtrasConceded_Overall', 0)
+    extras_conceded_T2_bowlers = stats_in1.get('Bowling_ExtrasConceded_Overall', 0)
+    match_features['ExtrasConceded_Margin_Overall'] = extras_conceded_T1_bowlers - extras_conceded_T2_bowlers
+
+    bowlers_used_T1 = stats_in2.get('Bowling_BowlersUsed_Overall', 0)
+    bowlers_used_T2 = stats_in1.get('Bowling_BowlersUsed_Overall', 0)
+    match_features['BowlersUsed_Margin_Overall'] = bowlers_used_T1 - bowlers_used_T2
+            
+    all_comparative_features.append(match_features)
+
+# --- 5. Create Final DataFrame ---
+model_ready_df = pd.DataFrame(all_comparative_features)
+
+# Define expected column order
+ordered_cols = ['Team1_Won'] 
+overall_margins_list = [
+    'WicketsTaken_Margin_Overall', 'Fours_Margin_Overall', 'Sixes_Margin_Overall', 
+    'DotBalls_Margin_Overall', 'ExtrasConceded_Margin_Overall', 'BowlersUsed_Margin_Overall'
+]
+ordered_cols.extend(sorted([col for col in model_ready_df.columns if col in overall_margins_list]))
+
+# Phase-specific margins for Runs (Powerplay, DeathOvers only)
+runs_phases_order_list = ['Powerplay', 'DeathOvers'] # Simple names for output columns
+for phase in runs_phases_order_list:
+    col_name = f'Runs_Margin_{phase}'
+    if col_name in model_ready_df.columns:
+        ordered_cols.append(col_name)
+
+final_ordered_cols = [col for col in ordered_cols if col in model_ready_df.columns]
+# Ensure all generated columns are included (in case of logic error in ordering)
+for col in model_ready_df.columns: 
+    if col not in final_ordered_cols:
+        final_ordered_cols.append(col)
+
+model_ready_df = model_ready_df[final_ordered_cols]
+
+# --- Display or Save ---
+print(f"Successfully processed {model_ready_df.shape[0]} matches into comparative features.")
+print("Model-ready features (No Middle Over Runs Margin):")
+print(model_ready_df.head().to_string())
+
+model_ready_df.to_csv('game_summary_overall.csv', index=False)
+print("\nModel-ready features saved to 'game_summary_model_ready_no_mid_runs.csv'")
+print(f"\nTotal columns generated: {len(model_ready_df.columns)}")
+print("Columns:", model_ready_df.columns.tolist())
+print("\nInfo for the generated DataFrame:")
+model_ready_df.info()
