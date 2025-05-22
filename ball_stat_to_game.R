@@ -3,9 +3,9 @@ library(dplyr)
 library(tidyr)
 library(magrittr) # Ensure the pipe operator is available
 
-ipl_data_2023 <- read.csv("Desktop/ipl/ipl_data_2023.csv")
-ipl_data_2024 <- read.csv("Desktop/ipl/ipl_data_2024.csv")
-ipl_data_2025 <- read.csv("Desktop/ipl/ipl_data_2025.csv")
+ipl_data_2023 <- read.csv("ipl_data_2023.csv")
+ipl_data_2024 <- read.csv("ipl_data_2024.csv")
+ipl_data_2025 <- read.csv("ipl_data_2025.csv")
 
 # Combine the data frames
 ipl_data <- bind_rows(ipl_data_2023, ipl_data_2024, ipl_data_2025)
